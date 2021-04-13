@@ -1,19 +1,23 @@
 {
-  "name": "Electron",
+  "name": "QuestResolutionChanger",
+  "productName": "Quest Resolution Changer",
   "version": "1.0.0",
+  "appId": "com.electron.questresolutionchanger",
   "description": "",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^12.0.2"
+    "electron": "^12.0.2",
+    "electron-builder": "^22.10.5"
   },
   "dependencies": {
-    "electron-builder": "^22.10.5",
     "jquery": "^3.6.0"
   }
 }
