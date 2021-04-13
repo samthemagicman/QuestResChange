@@ -1,0 +1,19 @@
+{
+  "name": "Electron",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^12.0.2"
+  },
+  "dependencies": {
+    "electron-builder": "^22.10.5",
+    "jquery": "^3.6.0"
+  }
+}
