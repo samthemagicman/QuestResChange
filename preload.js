@@ -79,9 +79,18 @@ var html = (pckgname, res, hz) => `<tr>
 </tr>`
 
 
+async function InsertPackageToList(packageName) {
+    try {
+        var res = await GetResolution(packageName);
+        var hz = await GetRefreshRate(packageName);
+        $(html(packageName, res, hz)).appendTo($("#package-list"));
+    } catch (err) {
+        ShowError(err);
+    }
+}
 
 function RefreshPackageList() {
-    exec(adbPath + " shell pm list packages -3\"|cut -f 2 -d \":", async (err, data) => {
+    exec(adbPath + " shell pm list packages -3\"|cut -f 2 -d \":", (err, data) => {
         $("#package-list").empty();
         var list = data.split("\n").sort();
 
@@ -89,13 +98,7 @@ function RefreshPackageList() {
             var str = list[i];
             if (str.length == 0) continue;
             str = str.trim();
-            try {
-                var res = await GetResolution(str);
-                var hz = await GetRefreshRate(str);
-                $(html(str, res, hz)).appendTo($("#package-list"));
-            } catch (err) {
-                ShowError(err);
-            }
+            InsertPackageToList(str);
         }
     })
 }
