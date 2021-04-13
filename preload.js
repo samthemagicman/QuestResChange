@@ -1,7 +1,6 @@
 const { exec } = require('child_process');
 var $;
-const path = require('path')
-const adbPath = path.join(__dirname, "adb.exe").normalize();
+const adbPath = ".\\resources\\adb.exe"
 
 function GetConnectedDevice() {
     return new Promise((resolve, reject) => {
