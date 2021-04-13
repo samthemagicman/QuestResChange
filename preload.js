@@ -1,7 +1,7 @@
 const { exec } = require('child_process');
 var $;
-
-const adbPath = `C:\\Users\\Sam\\Desktop\\Electron\\adb.exe`
+const path = require('path')
+const adbPath = path.join(__dirname, "adb.exe").normalize();
 
 function GetConnectedDevice() {
     return new Promise((resolve, reject) => {
@@ -70,10 +70,19 @@ function SetAllResolution(resolution) {
             var str = list[i];
             if (str.length == 0) continue;
             str = str.trim();
-            var res = await GetResolution(str);
-            $(html(str, res)).appendTo($("#package-list"));
+            try {
+                var res = await GetResolution(str);
+                $(html(str, res)).appendTo($("#package-list"));
+            } catch (err) {
+                ShowError(err);
+            }
         }
     })
+}
+
+function ShowError(msg) {
+    $("#error-message").text(msg);
+    $("#error-box").fadeIn();
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -98,7 +107,11 @@ window.addEventListener('DOMContentLoaded', () => {
     $("#package-list").on("click", "button", async (btn) => {
         $(btn.target).attr("disabled", true);
         var packageName = $(btn.target).data("package-name")
-        await SetResolution(packageName, currentResSetting);
+        try {
+            await SetResolution(packageName, currentResSetting);
+        } catch (err) {
+            ShowError(err);
+        }
         $(btn.target).parent().parent().find(".resolution").text(await GetResolution(packageName));
         $(btn.target).removeAttr("disabled");
     })
@@ -109,12 +122,22 @@ window.addEventListener('DOMContentLoaded', () => {
             $("#connected-device").text(device);
         } catch (err) {
             $("#connected-device").text("None");
+            ShowError(err);
         }
     }, 200)
 
     $("#set-all").click(() => {
-        SetAllResolution(currentResSetting);
+        try {
+            SetAllResolution(currentResSetting);
+        } catch (err) {
+            ShowError(err);
+        }
     })
+
+    // Error boxes
+    $("#close-error").click(() => {
+        $("#error-box").fadeOut();
+    });
 })
 
 var html = (pckgname, res) => `<tr>
