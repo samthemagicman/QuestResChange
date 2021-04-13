@@ -6,7 +6,6 @@ const adbPath = `C:\\Users\\Sam\\Desktop\\Electron\\adb.exe`
 function GetConnectedDevice() {
     return new Promise((resolve, reject) => {
         exec(adbPath + " shell getprop", (err, data) => {
-            console.log(data);
             if (err) return reject(err)
             resolve( data.match('ro.product.model.+\\[(.+)\\]')[1] );
         });
@@ -36,8 +35,6 @@ function SetResolution(packageName, resolution) {
     return new Promise((resolve, reject) => {
         exec(adbPath + ` shell settings put global texture_size_${packageName} ${resolution}`, (err, data) => {
             if (err) return reject(err)
-            console.log(data);
-            console.log(err);
             resolve(data.trim());
         });
     })
@@ -51,16 +48,31 @@ function GetResolution(packageName) {
     })
 }
 
-function RefreshPackageList() {
+function SetAllResolution(resolution) {
     exec(adbPath + " shell pm list packages -3\"|cut -f 2 -d \":", (err, data) => {
-        $("#package-list").empty();
         var list = data.split("\n");
         list.forEach(async str => {
             if (str.length == 0) return;
             str = str.trim();
+            SetResolution(str, resolution);
+        })
+    })
+
+    RefreshPackageList();
+}
+
+ function RefreshPackageList() {
+    exec(adbPath + " shell pm list packages -3\"|cut -f 2 -d \":", async (err, data) => {
+        $("#package-list").empty();
+        var list = data.split("\n").sort();
+
+        for (var i = 0; i < list.length; i++) {
+            var str = list[i];
+            if (str.length == 0) continue;
+            str = str.trim();
             var res = await GetResolution(str);
             $(html(str, res)).appendTo($("#package-list"));
-        })
+        }
     })
 }
 
@@ -88,10 +100,8 @@ window.addEventListener('DOMContentLoaded', () => {
         var packageName = $(btn.target).data("package-name")
         await SetResolution(packageName, currentResSetting);
         $(btn.target).parent().parent().find(".resolution").text(await GetResolution(packageName));
-
         $(btn.target).removeAttr("disabled");
     })
-
 
     setInterval(async () => {
         try {
@@ -101,8 +111,13 @@ window.addEventListener('DOMContentLoaded', () => {
             $("#connected-device").text("None");
         }
     }, 200)
+
+    $("#set-all").click(() => {
+        SetAllResolution(currentResSetting);
+    })
 })
-  var html = (pckgname, res) => `<tr>
+
+var html = (pckgname, res) => `<tr>
   <th scope="row" class="package-name">${pckgname}</th>
   <td class="resolution">${res}</td>
   <td class="button-holder"><button data-package-name="${pckgname}" class="btn btn-primary btn-block">Set</button></td>
